@@ -1,0 +1,49 @@
+﻿Nattibayannagari Parthasaradhi Reddy: 2024JRB2028
+
+Objective: To correct the sentences given by ASR which have errors using the phenome table and vocabulary table for common mistakes that occur during speech-to-text conversion. 
+Actions: The phenome table and vocabulary table have the most probable errors in a given sentence. The correction of such mistakes by the given table is the action. 
+State space: Given an erroneous sentence, which is our initial state(S0), by taking actions from the phenome table and vocabulary table, we get a successor state. A collection of such states and actions is the state space. The actions are the links, and the state is a node of a directed graph(state space).
+Branching Factor: The number of successor states created after taking a single action from the preceding state. Let the length of the word be ‘l’, and for each letter(character), the number of possible actions is ‘a”(phoneme table). Then the branching factor will be ‘l*a’.
+
+
+Approach:
+ We split the given sentence into words and explored all possible words using a recursion function to correct multiple mistakes. This approach is similar to graph search, as it only adds the new words possible with no repetition. Later, after exploring all the possible words, we compute the cost, and the lowest cost word is considered as the local optimal solution. Even after exploring all possible words, the algorithm sometimes gives suboptimal solutions. In this case, our algorithm compares the cost; the sentence with “ANTH” has a lower cost compared to “AND”, which is considered as the local minimum. For example,
+“ AND FEN COMEZ MURDEW CLEEK WHICH TAKES YOU ON TO TARRANGOWER” 
+cost : 3.733182668685913
+“ANTH FEN COMEZ MURDEW CLEEK WHICH TAKES YOU ON TO TARRANGOWER” 
+cost : 3.6615679264068604
+Similar to beam search that keeps track of k-best solutions, we improved the above approach. Instead of just storing the local optimal sentences, we stored the second-best word for a given word. After getting the first local optimal solution for all the words, we put the second best word for the given word, checked the cost, and replaced the word in the local optimal sentence(if it has a lower score). By doing this, we can escape from the local optima and move towards the global optima. In the above example, “ANTH” is the local optimal word, so it continues towards the end and returns the below sentence.
+'ANTH THEN COMES MURDER CREEK WHICH TAKES YOU ON TO TARRANGOWER'  
+cost: 1.9922970533370972
+'AND THEN COMES MURDER CREEK WHICH TAKES YOU ON TO TARRANGOWER' 
+cost: 1.6515719890594482
+Now replacing “ANTH” with the second best word “AND” in the sub optimal sentence yields the optimal solution.
+
+
+
+
+
+
+
+
+
+
+
+
+Code Explanation:
+Class PhTree:
+* Represents a tree with an initial root node based on a given word. New words generated are stored as children of this root node.
+* __init__ Function: Initializes the tree.
+* add_state Function: Adds nodes to the tree according to specific conditions.
+* Traversal Function: Traverses through the child nodes of the tree. For each child node, a new sentence is created. The sentence with the best score is retained, and the second-best word for each node is stored to facilitate beam search.
+Class Agent:
+* __init__ Function: Takes phoneme_table and vocabulary as arguments. Converts the phoneme table from a key-value pair to a value-key pair for easier error searching.
+* substitutions Function: Recursively generates all possible substitutions for each word and stores them in ph_tree. To avoid redundancy, generated words are tracked. The recursion depth is limited to 2 to reduce the state space. This function is called within asr_corrector.
+* asr_corrector Function:
+   * Splits the given sentence into words and stores them in the words variable.
+   * Sets the initial best score to infinity.
+   * For each word in words, the substitutions function is called to generate possible corrections based on the phoneme table.
+   * Calls the traversal function to find the best possible sentence. The traversal function returns the second-best word and the best sentence based on a cost function.
+   * Implements beam search: replaces each word with its second-best possible alternative. If the scores decrease, it updates the best text and scores accordingly.
+   * Handles missing words by iterating through each word and checking the scores for words from the vocabulary. The word that results in the lowest score after addition is retained. The best text after adding missing words is stored in best_vocab_text.
+   * The final best output is stored in self.best_state, and the cost of this final output is calculated using the environment.compute_cost function.

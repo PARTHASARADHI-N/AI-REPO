@@ -7,3 +7,4 @@ Reinforcement Learning
 <br>
 Computer vision
 <br>
+ALL are updated

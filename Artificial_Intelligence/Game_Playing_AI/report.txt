@@ -1,0 +1,34 @@
+2024JRB2028 NATTIBAYANNAGARI PARTHASARADHI REDDY 
+Algorithm:
+Different algorithms like Min-max, Expectimax, etc. can be used for playing this game, but as the size of the board increases, state space of search tree increases exponentially. Also, search algorithms like BFS and DFS suffer from the problem of time and space complexity. So, we chose to use the MCTS algorithm for efficient gameplay. To optimize the traditional MCTS method, we have included various heuristics based on the type of moves, whether the move is in a corner, edge, or a neighbour. Also, we have developed some defense techniques to increase the winning probability against the opponent.
+
+Code Explanation:
+Here, there are two classes, Node and AIPlayer. 
+Node here acts as a data structure with state, visits, parent, children, wins, and action as its attributes. Also, it contains methods like add_child(), update(), and ucb() to update the node contents as the game progresses.
+
+Class AIPlayer consists getmove() method.
+Getmove() method contains all these functions:
+defense(), all_children_expanded(), heuristics, select_node_to_expand(), expand_node(), random_simulate(), back_propagate(), mcts().
+
+Here the main method which returns the required best move for the agent at that particular state of board is getmove(). In getmove(), two functions namely defense() and mcts() will be returning move based on the present state of the board. To oppose the opponent win and support AI agent win, defense function will be called and it returns an intelligent move. Next, to fill the spots in agent's turn under normal game playing states, mcts method is called to get the best possible move based on UCB value and heuristics value.
+
+UCB:(wins/visits)+C*sqrt(log(parent_visits/child_visits))+heuristics
+Heuristics:
+Heuristics are made in such a way that mcts will return the most significant moves by considering the type of the move [corner, edge, AI neighbor, opponent neighbor, diagonals]. Each type will have a different value.
+
+Select_node_to_expand():
+This function will return the child node with the maximum UCB value.
+
+Random_simulate():
+As MCTS algorithm requires simulation of random moves, this function will simulate the game from that particular state as many times as the parameter iterations is passed.
+
+Expand_node():
+This function will expand the node returned by the select_node_to_expand function and add the expanded node to the search tree.
+
+Back_propagate():
+This function updates the values of the nodes by backtracking after every simulation.
+
+defense():
+Mate in 1: If agent or opponent can win by placing one more move then that particular move is returned. This is by using Check_win function.
+Mate in 2: If opponent or agent can win by placing two moves from the current state, then one of the two moves is returned to restrict the opponent from winning in two steps.Also it helps the agent to win in two moves.
+Also, valid corner moves are returned in a particular order based on the current state to increase the win probability.
